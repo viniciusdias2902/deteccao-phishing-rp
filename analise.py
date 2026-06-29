@@ -290,25 +290,34 @@ def exportar_macros(stats):
     melhor = stats['melhor']
     friedman = stats['friedman']
     pca = stats['pca']
+    importancias = stats['importancias']
 
+    # {,} como separador decimal: funciona em modo texto e math no LaTeX
     def fmt(v):
-        return f'{v:.3f}'.replace('.', ',')
+        return f'{v:.3f}'.replace('.', '{,}')
 
     def fmt2(v):
-        return f'{v:.2f}'.replace('.', ',')
+        return f'{v:.2f}'.replace('.', '{,}')
 
     def fmt1(v):
-        return f'{v:.1f}'.replace('.', ',')
+        return f'{v:.1f}'.replace('.', '{,}')
 
     n_total_fmt = f'{eda["n_total"]:,}'.replace(',', '.')
     n_phi_fmt = f'{eda["n_phishing"]:,}'.replace(',', '.')
     n_leg_fmt = f'{eda["n_legitimo"]:,}'.replace(',', '.')
-    pct_phi = f'{eda["pct_phishing"]:.1f}'.replace('.', ',') + r'\%'
+    pct_phi = f'{eda["pct_phishing"]:.1f}'.replace('.', '{,}') + r'\%'
 
     if friedman['friedman_p'] < 0.001:
-        p_str = r'$<$ 0,001'
+        p_str = r'< 0{,}001'
     else:
-        p_str = fmt(friedman['friedman_p'])
+        p_str = '= ' + fmt(friedman['friedman_p'])
+
+    # percentual de importância acumulada nas duas principais features
+    top2_pct = (importancias[0][1] + importancias[1][1]) * 100
+    top2_str = f'{top2_pct:.1f}'.replace('.', '{,}') + r'\%'
+
+    nb_f1 = stats['teste']['Naive Bayes']['f1']
+    rf_sigma = stats['cv']['Random Forest']['f1_cv_std']
 
     linhas = [
         r'\newcommand{\nTotal}{' + n_total_fmt + '}',
@@ -321,8 +330,11 @@ def exportar_macros(stats):
         r'\newcommand{\melhorModelo}{' + melhor['nome'] + '}',
         r'\newcommand{\melhorFOne}{' + fmt(melhor['f1']) + '}',
         r'\newcommand{\melhorAUC}{' + fmt(melhor['auc_roc']) + '}',
+        r'\newcommand{\melhorSigmaCV}{' + fmt(rf_sigma) + '}',
+        r'\newcommand{\naiveBayesFOne}{' + fmt(nb_f1) + '}',
         r'\newcommand{\pcaVarUm}{' + fmt1(pca['var1']) + r'\%}',
         r'\newcommand{\pcaVarDois}{' + fmt1(pca['var2']) + r'\%}',
+        r'\newcommand{\topDoisPct}{' + top2_str + '}',
     ]
 
     with open('resultados/macros.tex', 'w', encoding='utf-8') as f:
@@ -334,7 +346,7 @@ def exportar_tabelas(stats, nemenyi_colunas, nemenyi_vals, importancias):
     """Gera as 3 tabelas LaTeX em resultados/."""
 
     def fmt_br(v, decimais=3):
-        return f'{v:.{decimais}f}'.replace('.', ',')
+        return f'{v:.{decimais}f}'.replace('.', '{,}')
 
     # tabela_principal.tex
     linhas_tab = []
