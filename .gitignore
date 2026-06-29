@@ -1,0 +1,27 @@
+# Claude Code
+CLAUDE.md
+.claude/
+.claudeignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+
+# LaTeX (intermediários)
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Sistema
+.DS_Store
+Thumbs.db
