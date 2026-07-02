@@ -16,6 +16,16 @@
 \usepackage{amsmath}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric,arrows.meta,positioning}
+\usepackage{float}
+% Afrouxa os parâmetros de float para evitar que figuras sejam empurradas
+% para o fim do documento (ex.: para dentro das Referências).
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.7}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
 \usepackage{hyperref}
 \sloppy
 
@@ -180,7 +190,7 @@ comparações par a par.
 A Figura~\ref{fig:pipeline} resume o fluxo experimental completo, desde a
 obtenção dos dados até os testes estatísticos.
 
-\begin{figure}[htb]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
   node distance=6mm,
@@ -224,7 +234,7 @@ reflexo direto da violação da suposição gaussiana: os atributos do dataset
 são categóricos discretos, incompatíveis com a hipótese de normalidade do
 modelo.
 
-\begin{table}[htb]
+\begin{table}[htbp]
 \centering
 \caption{Desempenho dos classificadores em validação cruzada de 10 folds
 (CV) e no conjunto de teste. F1 refere-se à média macro.}
@@ -245,7 +255,7 @@ modelo é mal calibrada: as suposições de independência do Naive Bayes empurr
 as probabilidades estimadas para os extremos 0 e 1~\cite{niculescu2005},
 tornando o limiar padrão de 0,5 inadequado.
 
-\begin{figure}[htb]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\columnwidth]{curvas_roc.pdf}
 \caption{Curvas ROC dos sete classificadores avaliados no conjunto de teste.}
@@ -273,7 +283,7 @@ página concentram a maior parte do poder discriminativo. Os atributos restantes
 contribuem de forma mais distribuída, sem nenhum outro com importância
 individual relevante.
 
-\begin{figure}[htb]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\columnwidth]{importancia.pdf}
 \caption{Importância (critério Gini) dos 15 atributos mais relevantes segundo
