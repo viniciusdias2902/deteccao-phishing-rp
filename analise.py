@@ -330,6 +330,7 @@ def exportar_macros(stats):
         r'\newcommand{\melhorModelo}{' + melhor['nome'] + '}',
         r'\newcommand{\melhorFOne}{' + fmt(melhor['f1']) + '}',
         r'\newcommand{\melhorAUC}{' + fmt(melhor['auc_roc']) + '}',
+        r'\newcommand{\melhorAcuracia}{' + fmt(melhor['acuracia']) + '}',
         r'\newcommand{\melhorSigmaCV}{' + fmt(rf_sigma) + '}',
         r'\newcommand{\naiveBayesFOne}{' + fmt(nb_f1) + '}',
         r'\newcommand{\pcaVarUm}{' + fmt1(pca['var1']) + r'\%}',

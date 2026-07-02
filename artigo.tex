@@ -1,7 +1,16 @@
 \documentclass[12pt]{article}
 \usepackage{sbc-template}
 \usepackage[utf8]{inputenc}
-\usepackage[brazil]{babel}
+\usepackage[brazilian]{babel}
+% Compatibilidade babel >= 2024 x sbc-template.sty (2001): o template
+% redefine \normalsize (linha 31 do .sty), o que quebra a maquinaria de
+% \normalsfcodes que o babel moderno espera no gancho begindocument/before,
+% causando "Undefined control sequence" (\bbl@normalsf) em \begin{document}.
+% Definimos os dois comandos como no-op para restaurar a compatibilidade.
+\makeatletter
+\providecommand{\normalsfcodes}{}
+\providecommand{\bbl@normalsf}{}
+\makeatother
 \usepackage{graphicx,url}
 \usepackage{booktabs}
 \usepackage{amsmath}
@@ -56,8 +65,10 @@ externas são os atributos mais discriminativos do conjunto de dados.
 
 Phishing é uma técnica de engenharia social na qual o atacante cria URLs
 fraudulentas que imitam serviços legítimos para roubar credenciais ou induzir
-a instalação de malware~\cite{verma2017}. Com dezenas de milhões de novas URLs
-registradas mensalmente, a triagem puramente manual é inviável; filtros
+a instalação de malware~\cite{verma2017}. O volume do problema é expressivo:
+somente em 2023, a Anti-Phishing Working Group registrou cerca de cinco milhões
+de ataques de phishing, o maior total anual de sua série histórica~\cite{apwg2023}.
+Nesse cenário, a triagem puramente manual é inviável; filtros
 automáticos baseados em aprendizado de máquina tornaram-se componentes
 essenciais de browsers, gateways de e-mail e proxies corporativos. A
 efetividade desses sistemas depende da escolha adequada do classificador e
@@ -83,7 +94,8 @@ adotada em pesquisas subsequentes sobre o tema.
 Sahingoz et al.~\cite{sahingoz2019} compararam sete algoritmos de aprendizado
 de máquina em um conjunto de URLs coletadas em tempo real, usando atributos
 léxicos e de conteúdo. Random Forest obteve acurácia de 97,98\% e foi o
-melhor modelo no estudo, resultado consistente com o encontrado neste trabalho.
+melhor modelo no estudo, na mesma faixa da acurácia de \melhorAcuracia{}
+alcançada pelo Random Forest neste trabalho.
 
 Jain e Gupta~\cite{jain2018} propuseram um classificador baseado em
 hiperlinks extraídos do lado do cliente, sem acesso ao conteúdo da página,
@@ -105,20 +117,22 @@ atributos padronizados, sendo eficiente e interpretável. Naive Bayes Gaussiano
 assume independência condicional entre atributos e distribuição normal dentro
 de cada classe; a violação dessas hipóteses em dados categóricos pode degradar
 significativamente o desempenho~\cite{demsar2006}. $K$-Nearest Neighbors
-($k=5$) classifica por maioria de votos dos $k$ vizinhos mais próximos no
-espaço padronizado, sem fase de treino explícita, mas com custo de predição
-linear no tamanho do conjunto de treino. Árvore de Decisão particiona
+($k=5$)~\cite{cover1967} classifica por maioria de votos dos $k$ vizinhos mais
+próximos no espaço padronizado, sem fase de treino explícita, mas com custo de
+predição linear no tamanho do conjunto de treino. Árvore de Decisão particiona
 recursivamente o espaço de atributos maximizando a redução de impureza de
-Gini, produzindo regras diretamente interpretáveis. Random Forest constrói
+Gini~\cite{breiman1984}, produzindo regras diretamente interpretáveis. Random Forest constrói
 um ensemble de árvores sobre subconjuntos aleatórios dos dados e dos atributos,
 reduzindo variância por agregação e fornecendo estimativas naturais de
 importância de atributos~\cite{breiman2001}. Máquina de Vetores de Suporte
 com kernel RBF mapeia os dados para um espaço de maior dimensão e encontra
 o hiperplano de margem máxima nesse espaço~\cite{cortes1995}; a padronização
 dos atributos é essencial para o funcionamento correto do kernel. Gradient
-Boosting treina uma sequência de árvores rasas de forma aditiva, onde cada
-árvore corrige os resíduos da anterior, obtendo modelos de alta acurácia ao
-custo de maior tempo de treino~\cite{chen2016}.
+Boosting~\cite{friedman2001} treina uma sequência de árvores rasas de forma
+aditiva, onde cada árvore corrige os resíduos da anterior, obtendo modelos de
+alta acurácia ao custo de maior tempo de treino; implementações escaláveis
+desse paradigma, como o XGBoost~\cite{chen2016}, difundiram seu uso em
+aplicações de larga escala.
 
 \section{Metodologia}
 
@@ -141,7 +155,8 @@ para Random Forest e Gradient Boosting, $k=5$ para KNN e \texttt{max\_iter=2000}
 para a Regressão Logística. Classificadores sensíveis à escala — Regressão
 Logística, Naive Bayes, KNN e SVM — receberam os atributos padronizados via
 \texttt{StandardScaler} dentro de um \texttt{Pipeline}. Os demais operaram
-sobre os dados brutos.
+sobre os dados brutos. Toda a implementação — modelos, padronização, validação
+cruzada e métricas — utilizou a biblioteca scikit-learn~\cite{pedregosa2011}.
 
 \subsection{Avaliação e Teste Estatístico}
 
@@ -157,7 +172,8 @@ pelo pós-teste de Nemenyi para comparações par a par.
 
 A Tabela~\ref{tab:principal} apresenta os resultados completos em validação
 cruzada e no conjunto de teste. \melhorModelo{} obteve o melhor desempenho
-geral, com $\text{F1} = \melhorFOne{}$ e $\text{AUC-ROC} = \melhorAUC{}$ no
+geral, com acurácia de \melhorAcuracia{}, $\text{F1} = \melhorFOne{}$ e
+$\text{AUC-ROC} = \melhorAUC{}$ no
 conjunto de teste, e variância reduzida na validação cruzada
 ($\sigma = \melhorSigmaCV{}$), indicando estabilidade. Gradient Boosting e Árvore de
 Decisão apresentaram resultados próximos, enquanto Regressão Logística, KNN
@@ -180,7 +196,9 @@ Tabela~\ref{tab:principal}: os seis modelos com melhor F1 apresentam
 AUC-ROC elevado e próximo do ótimo, indicando forte discriminação em todos
 os limiares. A curva de Naive Bayes, apesar de AUC-ROC competitivo, colapsa
 em F1 muito inferior porque a distribuição de probabilidades geradas pelo
-modelo é mal calibrada, tornando o limiar padrão de 0,5 inadequado.
+modelo é mal calibrada: as suposições de independência do Naive Bayes empurram
+as probabilidades estimadas para os extremos 0 e 1~\cite{niculescu2005},
+tornando o limiar padrão de 0,5 inadequado.
 
 \begin{figure}[htb]
 \centering
