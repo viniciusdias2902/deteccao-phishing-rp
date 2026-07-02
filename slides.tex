@@ -1,0 +1,294 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+
+% ============================================================
+%  Apresentação: Detecção de Phishing em URLs com
+%  Classificadores Clássicos — Um Estudo Comparativo
+%  Divisão: 3 apresentadores (blocos marcados com \parte{})
+% ============================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning}
+
+% ---- Tema visual limpo ----
+\usetheme{Madrid}
+\usecolortheme{whale}
+\useinnertheme{circles}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}{\raggedright\insertcaption\par}
+\setbeamerfont{frametitle}{size=\large}
+\setbeamertemplate{frametitle}[default][center]
+
+% Rodapé enxuto e neutro (sem apresentador)
+\setbeamertemplate{footline}{%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1.2ex,leftskip=1em,rightskip=1em]{author in head/foot}%
+      \usebeamerfont{author in head/foot}\insertshorttitle\hfill
+      \insertframenumber/\inserttotalframenumber
+    \end{beamercolorbox}%
+  }%
+}
+
+% Separador de seção neutro (sem apresentador); alimenta o sumário
+\newcommand{\parte}[1]{%
+  \section{#1}
+  \begingroup
+  \setbeamercolor{background canvas}{bg=structure.fg!12}
+  \begin{frame}[plain]
+    \vfill
+    \begin{center}
+      {\usebeamercolor[fg]{structure}\Large\textbf{#1}}
+    \end{center}
+    \vfill
+  \end{frame}
+  \endgroup
+}
+
+% Dados reais do experimento (espelham resultados/macros.tex)
+\newcommand{\nTotal}{11.055}
+\newcommand{\nFeatures}{30}
+\newcommand{\nPhishing}{6.157}
+\newcommand{\nLegitimo}{4.898}
+\newcommand{\pctPhishing}{55,7\%}
+\newcommand{\melhorFOne}{0,974}
+\newcommand{\melhorAUC}{0,998}
+\newcommand{\melhorAcuracia}{0,974}
+\newcommand{\naiveBayesFOne}{0,561}
+\newcommand{\friedmanChi}{56,27}
+\newcommand{\topDoisPct}{56,7\%}
+
+\title[Detecção de Phishing em URLs]{Detecção de Phishing em URLs com\\Classificadores Clássicos}
+\subtitle{Um Estudo Comparativo}
+\author[Dias, Braz e Nascimento]{Vinícius M. Dias \and João M. M. Braz \and Pedro G. A. do Nascimento}
+\institute[UESPI]{Ciência da Computação — Universidade Estadual do Piauí (UESPI)}
+\date{Reconhecimento de Padrões}
+
+\begin{document}
+
+% ===================== CAPA =====================
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+% ===================== SUMÁRIO =====================
+\begin{frame}{Sumário}
+  \tableofcontents
+\end{frame}
+
+% ============================================================
+% ================  PARTE 1 — VINÍCIUS  ======================
+% ============================================================
+\parte{Introdução e Trabalhos Relacionados}
+
+\begin{frame}{O problema: phishing}
+  \begin{itemize}
+    \item Phishing é engenharia social: URLs fraudulentas imitam serviços
+          legítimos para roubar credenciais ou instalar malware.
+    \item \textbf{Escala do problema:} só em 2023, a APWG registrou cerca de
+          \textbf{cinco milhões} de ataques — o maior total anual já registrado.
+    \item Triagem manual é inviável $\Rightarrow$ filtros automáticos com
+          \textbf{aprendizado de máquina} tornaram-se essenciais em browsers,
+          e-mail e proxies.
+  \end{itemize}
+  \vfill
+  \begin{block}{Pergunta do trabalho}
+    Qual classificador clássico é mais eficaz para detectar phishing em URLs,
+    e a diferença entre eles é estatisticamente significativa?
+  \end{block}
+\end{frame}
+
+\begin{frame}{O que este trabalho faz}
+  \begin{itemize}
+    \item Compara \textbf{sete classificadores clássicos}:
+    \begin{itemize}
+      \item Regressão Logística, Naive Bayes, KNN, Árvore de Decisão,
+      \item Random Forest, SVM (kernel RBF), Gradient Boosting.
+    \end{itemize}
+    \item Base: \textbf{UCI Phishing Websites} — \nTotal{} amostras,
+          \nFeatures{} atributos.
+    \item Avaliação com validação cruzada de 10 folds \textbf{e} teste
+          estatístico de Friedman.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Trabalhos relacionados}
+  \begin{itemize}
+    \item \textbf{Mohammad et al. (2012)} — propuseram o dataset UCI, definindo e
+          extraindo automaticamente os \nFeatures{} atributos.
+    \item \textbf{Sahingoz et al. (2019)} — compararam sete algoritmos; Random
+          Forest venceu (97,98\% de acurácia), na mesma faixa do nosso resultado.
+    \item \textbf{Jain e Gupta (2018)} — classificação por hiperlinks do lado do
+          cliente (98,4\%), sem carregar a página.
+    \item \textbf{Verma e Das (2017)} — atributos léxicos da string da URL já são
+          altamente discriminativos.
+  \end{itemize}
+\end{frame}
+
+% ============================================================
+% ================  PARTE 2 — JOÃO MARCELLO  =================
+% ============================================================
+\parte{Fundamentação e Metodologia}
+
+\begin{frame}{Os sete classificadores}
+  \small
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    \textbf{Modelo} & \textbf{Ideia central} \\
+    \midrule
+    Regressão Logística & Fronteira linear; probabilidade sigmoidal \\
+    Naive Bayes Gaussiano & Assume independência e normalidade \\
+    KNN ($k=5$) & Vota nos vizinhos mais próximos \\
+    Árvore de Decisão & Partições por impureza de Gini \\
+    Random Forest & Ensemble de árvores (reduz variância) \\
+    SVM (kernel RBF) & Margem máxima em espaço transformado \\
+    Gradient Boosting & Árvores aditivas que corrigem resíduos \\
+    \bottomrule
+  \end{tabular}
+  \vfill
+  \footnotesize Modelos sensíveis à escala (RegLog, NB, KNN, SVM) recebem
+  padronização; os baseados em árvore, não.
+\end{frame}
+
+\begin{frame}{O dataset}
+  \begin{itemize}
+    \item \textbf{UCI Phishing Websites}: \nTotal{} amostras, \nFeatures{}
+          atributos categóricos discretos.
+    \item Maioria \textbf{binários} $\{-1,1\}$ (ausência/presença);
+          alguns \textbf{ternários} $\{-1,0,1\}$ (intensidade).
+    \item \nPhishing{} phishing (\pctPhishing) e \nLegitimo{} legítimas
+          — leve desbalanceamento, sem valores faltantes.
+    \item Atributos extraídos de URL, DNS, HTML e JavaScript.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Pipeline experimental}
+  \centering
+  \scriptsize
+  \begin{tikzpicture}[
+    node distance=3.2mm,
+    etapa/.style={rectangle, rounded corners, draw, thick,
+      text width=6.2cm, align=center, minimum height=6mm, inner sep=2pt},
+    seta/.style={-{Stealth[length=1.6mm]}, thick}
+  ]
+    \node[etapa, fill=black!5] (d) {Dataset UCI (\nTotal{} amostras, \nFeatures{} atributos)};
+    \node[etapa, fill=blue!8, below=of d] (s) {Divisão treino/teste (80/20, estratificada)};
+    \node[etapa, fill=blue!8, below=of s] (p) {Padronização (modelos sensíveis à escala)};
+    \node[etapa, fill=violet!12, below=of p] (cv) {Validação cruzada estratificada de 10 folds};
+    \node[etapa, fill=violet!12, below=of cv] (t) {Treino dos sete classificadores};
+    \node[etapa, fill=teal!14, below=of t] (a) {Avaliação no teste (acurácia, F1, AUC-ROC)};
+    \node[etapa, fill=teal!14, below=of a] (st) {Testes estatísticos (Friedman + Nemenyi)};
+    \draw[seta] (d)--(s); \draw[seta] (s)--(p); \draw[seta] (p)--(cv);
+    \draw[seta] (cv)--(t); \draw[seta] (t)--(a); \draw[seta] (a)--(st);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Como medimos e comparamos}
+  \begin{itemize}
+    \item \textbf{Protocolo:} 80/20 estratificado, \texttt{random\_state=42}
+          (reprodutível); validação cruzada de 10 folds no treino.
+    \item \textbf{Métricas:} acurácia, F1 macro e AUC-ROC.
+    \item \textbf{Teste estatístico:} Friedman (as diferenças são reais?)
+          + pós-teste de Nemenyi (quais modelos diferem?).
+    \item \textbf{Ferramentas:} scikit-learn, SciPy, scikit-posthocs.
+  \end{itemize}
+  \vfill
+  \begin{block}{Por que teste estatístico?}
+    Diferenças pequenas de F1 podem ser ruído. O Friedman diz se há diferença
+    \emph{significativa}, não apenas numérica.
+  \end{block}
+\end{frame}
+
+% ============================================================
+% ================  PARTE 3 — PEDRO GABRYEL  =================
+% ============================================================
+\parte{Resultados e Conclusão}
+
+\begin{frame}{Resultados: desempenho dos modelos}
+  \centering
+  \scriptsize
+  \begin{tabular}{lcccc}
+    \toprule
+    \textbf{Classificador} & \textbf{F1 (CV)} & \textbf{F1 (teste)} & \textbf{AUC-ROC} & \textbf{Tempo (s)} \\
+    \midrule
+    Regressão Logística & 0,926 & 0,927 & 0,981 & 0,01 \\
+    Naive Bayes & 0,561 & 0,561 & 0,970 & 0,00 \\
+    KNN ($k=5$) & 0,940 & 0,949 & 0,987 & 0,00 \\
+    Árvore de Decisão & 0,961 & 0,971 & 0,980 & 0,01 \\
+    \textbf{Random Forest} & \textbf{0,970} & \textbf{0,974} & \textbf{0,998} & 0,17 \\
+    SVM RBF & 0,948 & 0,951 & 0,989 & 2,14 \\
+    Gradient Boosting & 0,952 & 0,956 & 0,994 & 0,75 \\
+    \bottomrule
+  \end{tabular}
+  \vfill
+  \normalsize
+  \textbf{Random Forest} vence: F1 = \melhorFOne, AUC-ROC = \melhorAUC,
+  com baixa variância e treino em fração de segundo.
+\end{frame}
+
+\begin{frame}{Dois destaques da análise}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Naive Bayes despenca}
+      \begin{itemize}
+        \item F1 = \naiveBayesFOne{} (muito abaixo).
+        \item AUC-ROC até competitivo (0,970), mas probabilidades mal
+              calibradas $\Rightarrow$ limiar 0,5 falha.
+        \item Atributos discretos violam a hipótese gaussiana.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Árvore de Decisão}
+      \begin{itemize}
+        \item 2º melhor F1 (0,971)\ldots
+        \item \ldots mas o \emph{menor} AUC dos bons (0,980).
+        \item Decide bem no limiar padrão, mas gradua mal as probabilidades.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Teste estatístico e atributos}
+  \begin{itemize}
+    \item \textbf{Friedman:} $\chi^2 = \friedmanChi{}$ ($p < 0,001$) — as
+          diferenças são significativas.
+    \item \textbf{Nemenyi:} só o Naive Bayes difere dos demais; os outros seis
+          são estatisticamente equivalentes — todos viáveis.
+    \item \textbf{Atributos mais discriminativos:} \texttt{sslfinal\_state}
+          (SSL) e \texttt{url\_of\_anchor} (âncoras externas) somam \topDoisPct{}
+          da importância.
+  \end{itemize}
+  \vfill
+  \footnotesize No artigo: Figura 2 (curvas ROC) e Figura 3 (importância dos
+  atributos) detalham estes pontos.
+\end{frame}
+
+\begin{frame}{Conclusão}
+  \begin{itemize}
+    \item Random Forest foi o melhor: F1 = \melhorFOne{}, AUC-ROC = \melhorAUC{},
+          rápido e estável.
+    \item As diferenças entre os modelos são estatisticamente significativas
+          (Friedman); o Naive Bayes é o destoante.
+    \item SSL e proporção de âncoras externas concentram o poder discriminativo.
+  \end{itemize}
+  \vfill
+  \begin{block}{Limitação e trabalhos futuros}
+    Os atributos são extraídos manualmente (implica latência). Próximo passo:
+    atributos léxicos brutos da URL, sem carregar a página.
+  \end{block}
+\end{frame}
+
+\begin{frame}[plain]
+  \vfill
+  \begin{center}
+    {\Large\textbf{Obrigado!}}\\[1em]
+    {\large Perguntas?}\\[2em]
+    \small Vinícius M. Dias \quad\textbullet\quad João M. M. Braz
+    \quad\textbullet\quad Pedro G. A. do Nascimento\\
+    \small UESPI — Reconhecimento de Padrões
+  \end{center}
+  \vfill
+\end{frame}
+
+\end{document}
