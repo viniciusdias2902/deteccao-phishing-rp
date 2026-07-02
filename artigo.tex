@@ -27,9 +27,10 @@
 \author{Vinícius Magalhães Dias\inst{1}, João Marcello Machado Braz\inst{1},
         Pedro Gabryel Araujo do Nascimento\inst{1}}
 
-\address{Disciplina de Reconhecimento de Padrões\\
-  [PREENCHER: Instituição] -- [Cidade], [UF] -- Brasil
-  \email{[PREENCHER: emails separados por vírgula]}}
+\address{Curso de Ciência da Computação -- Universidade Estadual do Piauí (UESPI)\\
+  Piripiri -- PI -- Brasil
+  \email{viniciusdias@aluno.uespi.br, joaobraz@aluno.uespi.br,
+  pedronascimento2005@aluno.uespi.br}}
 
 \begin{document}
 \maketitle
@@ -85,10 +86,10 @@ desempenho.
 
 \section{Trabalhos Relacionados}
 
-Mohammad et al.~\cite{mohammad2012} propuseram o dataset UCI Phishing Websites
-e um sistema de classificação baseado em regras derivadas dos \nFeatures{}
-atributos extraídos manualmente de URL, DNS e HTML, reportando acurácia de
-92,4\% com classificação fuzzy. O dataset tornou-se referência amplamente
+Mohammad et al.~\cite{mohammad2012} propuseram o dataset UCI Phishing Websites,
+definindo e extraindo automaticamente os \nFeatures{} atributos a partir de
+características de URL, DNS e HTML, e avaliando sua relevância para distinguir
+páginas legítimas de fraudulentas. O dataset tornou-se referência amplamente
 adotada em pesquisas subsequentes sobre o tema.
 
 Sahingoz et al.~\cite{sahingoz2019} compararam sete algoritmos de aprendizado
@@ -139,9 +140,13 @@ aplicações de larga escala.
 \subsection{Dataset}
 
 O dataset UCI Phishing Websites~\cite{mohammad2012} contém \nTotal{} amostras
-descritas por \nFeatures{} atributos categóricos de valor ternário
-$\{-1, 0, 1\}$, extraídos de características da URL, do servidor DNS, do
-código HTML e do comportamento JavaScript da página. São \nPhishing{} amostras
+descritas por \nFeatures{} atributos categóricos discretos, em sua maioria
+binários ($\{-1, 1\}$, indicando ausência ou presença de uma característica) e
+os demais ternários ($\{-1, 0, 1\}$, representando intensidade baixa, média ou
+alta), extraídos de características da URL, do servidor DNS, do
+código HTML e do comportamento JavaScript da página. Os dados foram obtidos
+diretamente do repositório UCI~\cite{ucimlrepo} por meio do pacote
+\texttt{ucimlrepo}. São \nPhishing{} amostras
 de phishing (\pctPhishing{}) e \nLegitimo{} legítimas, configurando um leve
 desbalanceamento. Não há valores faltantes. Os rótulos seguem a convenção
 $+1$ para phishing e $-1$ para legítimo.
@@ -165,8 +170,10 @@ no conjunto de treino, coletando acurácia, F1 macro e AUC-ROC por fold.
 Os modelos foram então treinados em todo o conjunto de treino e avaliados
 no conjunto de teste. Para determinar se as diferenças de desempenho são
 estatisticamente significativas, aplicou-se o teste não paramétrico de
-Friedman~\cite{demsar2006} sobre os escores de F1 macro por fold, seguido
-pelo pós-teste de Nemenyi para comparações par a par.
+Friedman~\cite{demsar2006}, calculado com a biblioteca SciPy~\cite{virtanen2020},
+sobre os escores de F1 macro por fold, seguido pelo pós-teste de Nemenyi,
+obtido com a biblioteca scikit-posthocs~\cite{terpilowski2019}, para
+comparações par a par.
 
 \section{Resultados e Discussão}
 
@@ -181,7 +188,7 @@ SVM RBF e KNN formaram um grupo intermediário (F1 entre 0{,}949 e 0{,}956) e a
 Regressão Logística ficou logo abaixo (0{,}927). Naive Bayes registrou desempenho
 significativamente inferior ao dos demais, com F1 de $\naiveBayesFOne{}$,
 reflexo direto da violação da suposição gaussiana: os atributos do dataset
-são categóricos ternários, incompatíveis com a hipótese de normalidade do
+são categóricos discretos, incompatíveis com a hipótese de normalidade do
 modelo.
 
 \begin{table}[htb]
