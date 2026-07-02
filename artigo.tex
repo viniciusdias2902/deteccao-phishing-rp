@@ -175,9 +175,10 @@ cruzada e no conjunto de teste. \melhorModelo{} obteve o melhor desempenho
 geral, com acurácia de \melhorAcuracia{}, $\text{F1} = \melhorFOne{}$ e
 $\text{AUC-ROC} = \melhorAUC{}$ no
 conjunto de teste, e variância reduzida na validação cruzada
-($\sigma = \melhorSigmaCV{}$), indicando estabilidade. Gradient Boosting e Árvore de
-Decisão apresentaram resultados próximos, enquanto Regressão Logística, KNN
-e SVM RBF ficaram em um nível intermediário. Naive Bayes registrou desempenho
+($\sigma = \melhorSigmaCV{}$), indicando estabilidade. A Árvore de Decisão
+acompanhou o Random Forest de perto em F1 (0{,}971), enquanto Gradient Boosting,
+SVM RBF e KNN formaram um grupo intermediário (F1 entre 0{,}949 e 0{,}956) e a
+Regressão Logística ficou logo abaixo (0{,}927). Naive Bayes registrou desempenho
 significativamente inferior ao dos demais, com F1 de $\naiveBayesFOne{}$,
 reflexo direto da violação da suposição gaussiana: os atributos do dataset
 são categóricos ternários, incompatíveis com a hipótese de normalidade do
@@ -191,10 +192,14 @@ modelo.
 \input{resultados/tabela_principal.tex}
 \end{table}
 
-As curvas ROC (Figura~\ref{fig:roc}) confirmam o padrão observado na
-Tabela~\ref{tab:principal}: os seis modelos com melhor F1 apresentam
-AUC-ROC elevado e próximo do ótimo, indicando forte discriminação em todos
-os limiares. A curva de Naive Bayes, apesar de AUC-ROC competitivo, colapsa
+As curvas ROC (Figura~\ref{fig:roc}) complementam a análise por F1. Os
+modelos de ensemble alcançam AUC-ROC próximo do ótimo (Random Forest 0{,}998
+e Gradient Boosting 0{,}994), indicando forte discriminação em todos os
+limiares. A Árvore de Decisão, apesar do segundo melhor F1, apresenta o AUC-ROC
+mais baixo entre os modelos não triviais (0{,}980): por produzir probabilidades
+pouco graduadas, ela decide bem no limiar padrão, mas discrimina de forma menos
+consistente ao longo de todos os limiares. A curva de Naive Bayes, apesar de
+AUC-ROC competitivo, colapsa
 em F1 muito inferior porque a distribuição de probabilidades geradas pelo
 modelo é mal calibrada: as suposições de independência do Naive Bayes empurram
 as probabilidades estimadas para os extremos 0 e 1~\cite{niculescu2005},
@@ -213,7 +218,11 @@ equivalente entre todos os classificadores. O pós-teste de Nemenyi revelou
 que Naive Bayes difere significativamente de todos os demais modelos
 ($p < 0{,}05$), ao passo que as diferenças entre os outros seis classificadores
 não atingem significância estatística nesse critério, sugerindo que todos
-são escolhas viáveis para o problema.
+são escolhas viáveis para o problema. Do ponto de vista de custo, o tempo de
+treino também favorece o Random Forest: ele foi treinado em fração de segundo,
+enquanto o SVM RBF foi o mais custoso (cerca de 2~s, uma ordem de grandeza
+acima dos demais), sem oferecer ganho de desempenho que justifique o custo
+adicional.
 
 A Figura~\ref{fig:importancia} mostra os quinze atributos de maior importância
 segundo o \melhorModelo{}. Os dois mais relevantes — \texttt{sslfinal\_state}
