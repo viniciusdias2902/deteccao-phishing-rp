@@ -14,6 +14,8 @@
 \usepackage{graphicx,url}
 \usepackage{booktabs}
 \usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning}
 \usepackage{hyperref}
 \sloppy
 
@@ -174,6 +176,37 @@ Friedman~\cite{demsar2006}, calculado com a biblioteca SciPy~\cite{virtanen2020}
 sobre os escores de F1 macro por fold, seguido pelo pós-teste de Nemenyi,
 obtido com a biblioteca scikit-posthocs~\cite{terpilowski2019}, para
 comparações par a par.
+
+A Figura~\ref{fig:pipeline} resume o fluxo experimental completo, desde a
+obtenção dos dados até os testes estatísticos.
+
+\begin{figure}[htb]
+\centering
+\begin{tikzpicture}[
+  node distance=6mm,
+  every node/.style={font=\small},
+  etapa/.style={rectangle, rounded corners, draw, thick,
+    text width=6.6cm, align=center, minimum height=9mm, inner sep=3pt},
+  seta/.style={-{Stealth[length=2mm]}, thick}
+]
+\node[etapa, fill=black!5] (dados) {Dataset UCI Phishing Websites\\{\footnotesize \nTotal{} amostras, \nFeatures{} atributos}};
+\node[etapa, fill=blue!8, below=of dados] (split) {Divisão treino/teste (80/20, estratificada)};
+\node[etapa, fill=blue!8, below=of split] (scale) {Padronização com \texttt{StandardScaler}\\{\footnotesize aplicada apenas aos modelos sensíveis à escala}};
+\node[etapa, fill=violet!10, below=of scale] (cv) {Validação cruzada estratificada de 10 folds};
+\node[etapa, fill=violet!10, below=of cv] (treino) {Treino dos sete classificadores\\{\footnotesize RegLog, NB, KNN, Árvore, RF, SVM RBF, GB}};
+\node[etapa, fill=teal!12, below=of treino] (aval) {Avaliação no conjunto de teste\\{\footnotesize acurácia, F1 macro e AUC-ROC}};
+\node[etapa, fill=teal!12, below=of aval] (stat) {Testes estatísticos\\{\footnotesize Friedman + pós-teste de Nemenyi}};
+\draw[seta] (dados) -- (split);
+\draw[seta] (split) -- (scale);
+\draw[seta] (scale) -- (cv);
+\draw[seta] (cv) -- (treino);
+\draw[seta] (treino) -- (aval);
+\draw[seta] (aval) -- (stat);
+\end{tikzpicture}
+\caption{Pipeline experimental do estudo, da obtenção dos dados aos testes
+estatísticos de comparação entre os classificadores.}
+\label{fig:pipeline}
+\end{figure}
 
 \section{Resultados e Discussão}
 
