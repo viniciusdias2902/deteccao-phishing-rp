@@ -10,7 +10,9 @@
 \usepackage[brazil]{babel}
 \usepackage{booktabs}
 \usepackage{tikz}
+\usepackage{graphicx}
 \usetikzlibrary{shapes.geometric,arrows.meta,positioning}
+\graphicspath{{resultados/figuras/}}
 
 % ---- Tema visual limpo ----
 \usetheme{Madrid}
@@ -127,7 +129,7 @@
 \end{frame}
 
 % ============================================================
-% ================  PARTE 2 — JOÃO MARCELLO  =================
+% ================  PARTE 2 — PEDRO GABRYEL  =================
 % ============================================================
 \parte{Fundamentação e Metodologia}
 
@@ -201,7 +203,7 @@
 \end{frame}
 
 % ============================================================
-% ================  PARTE 3 — PEDRO GABRYEL  =================
+% ================  PARTE 3 — JOAO MARCELLO =================
 % ============================================================
 \parte{Resultados e Conclusão}
 
@@ -227,6 +229,14 @@
   com baixa variância e treino em fração de segundo.
 \end{frame}
 
+\begin{frame}{Curvas ROC}
+  \centering
+  \includegraphics[width=0.75\textwidth]{curvas_roc.pdf}
+  \vfill
+  \small Os seis melhores modelos têm AUC próximo de 1. Naive Bayes tem AUC
+  competitivo (0,970), mas probabilidades mal calibradas prejudicam o F1.
+\end{frame}
+
 \begin{frame}{Dois destaques da análise}
   \begin{columns}[T]
     \begin{column}{0.5\textwidth}
@@ -249,19 +259,39 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Teste estatístico e atributos}
+\begin{frame}{Teste estatístico}
   \begin{itemize}
-    \item \textbf{Friedman:} $\chi^2 = \friedmanChi{}$ ($p < 0,001$) — as
-          diferenças são significativas.
-    \item \textbf{Nemenyi:} só o Naive Bayes difere dos demais; os outros seis
-          são estatisticamente equivalentes — todos viáveis.
-    \item \textbf{Atributos mais discriminativos:} \texttt{sslfinal\_state}
-          (SSL) e \texttt{url\_of\_anchor} (âncoras externas) somam \topDoisPct{}
-          da importância.
+    \item \textbf{Friedman:} $\chi^2 = \friedmanChi{}$ ($p < 0,001$) — rejeita
+          $H_0$: as diferenças de desempenho são significativas.
+    \item \textbf{Pós-teste de Nemenyi:} só o Naive Bayes difere
+          significativamente dos demais ($p < 0,05$).
+    \item Os outros seis classificadores são \textbf{estatisticamente
+          equivalentes} — todos viáveis para o problema.
   \end{itemize}
   \vfill
-  \footnotesize No artigo: Figura 2 (curvas ROC) e Figura 3 (importância dos
-  atributos) detalham estes pontos.
+  \begin{block}{Por que isso importa?}
+    Diferenças numéricas pequenas podem ser ruído. O Friedman confirma que há
+    pelo menos um modelo genuinamente diferente — e o Nemenyi aponta qual.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Atributos mais discriminativos}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{importancia.pdf}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{itemize}
+        \item \textbf{\texttt{sslfinal\_state}} (SSL) e
+              \textbf{\texttt{url\_of\_anchor}} (âncoras externas) somam
+              \topDoisPct{} da importância.
+        \item Indicadores de segurança do protocolo e comportamento de
+              hiperlinks concentram o poder discriminativo.
+        \item Os demais atributos contribuem de forma distribuída.
+      \end{itemize}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Conclusão}
